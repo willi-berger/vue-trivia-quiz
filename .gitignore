@@ -1,5 +1,13 @@
 .DS_Store
-node_modules
+node_modules/*
+!node_modules/vue
+node_modules/vue/*
+!node_modules/vue/dist
+
+!node_modules/mini.css
+node_modules/mini.css/*
+!node_modules/mini.css/dist
+
 /dist
 
 
