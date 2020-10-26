@@ -83,7 +83,7 @@
                 <div class="col-sm-4">
                     <hr>
                     <ul v-for="a in answers" v-on:click="checkAnswer">
-                        <li>{{a}}</li>
+                        <li v-html="a"></li>
                     </ul>
                 </div>
                 <div class="col-sm-2" id="result">
@@ -99,7 +99,7 @@
             <div class="row game" id="buttons">
                 <div class="col-sm-12">
                     <hr>
-                    <button class="primary" disabled>Joker</button>
+                    <button class="primary" :disabled="isDisabledJoker">Joker</button>
                     <button class="primary" disabled>Give Up</button>
                     <button class="primary" :disabled="isDisabledNext"  v-on:click="nextQuestionClicked">Next</button>
                 </div>
