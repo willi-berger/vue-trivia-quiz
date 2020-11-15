@@ -51,15 +51,32 @@ body {
     width: 100%;
 }
 
-#answers li {
+.answer_able {
     background-color: aquamarine;
     opacity: 0.5;
-    transition-duration: 0.2s
+    transition-duration: 0.3s
 }
 
-#answers li:hover {
+.answer_able:hover {
     opacity: 1;
 }
+
+.answer_wrong {
+    background-color: red;
+}
+
+.answer_correct {    
+    background-color: green;
+}
+
+.answer_given {
+    background-color: aquamarine;
+}
+
+.answer_joker {
+    text-decoration: line-through;
+}
+
 
 #result {
     padding: 2em;

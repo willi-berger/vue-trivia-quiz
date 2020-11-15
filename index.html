@@ -45,7 +45,6 @@
                     </ul>
                 </div>
             </div>
-
             
             <div class="row game">
                 <div class="col-sm-12">
@@ -60,7 +59,10 @@
                                 <option v-for="d in difficulties" v-bind:value="d.id">{{d.name}}</option>
                             </select>
 
-                            <button v-bind:click="startGameClicked">Start Game</button>
+                            <label for="score">Score</label>
+                            <input type="text" disabled v-bind:value="score">
+
+                            <button v-on:click.prevent="startGameClicked">Start Game</button>
                         </fieldset>
 
                     </form>
@@ -83,14 +85,22 @@
                 <div class="col-sm-4">
                     <hr>
                     <ul v-for="a in answers" v-on:click="checkAnswer">
-                        <li v-html="a"></li>
+                        <li  
+                            v-bind:class="{
+                                'answer_able': !answerGiven && !a.isJoker,
+                                'answer_given': ((answerGiven && !a.isChosen) || a.isJoker),
+                                'answer_correct': (answerGiven && a.isChosen && a.isCorrect),
+                                'answer_wrong': (answerGiven && a.isChosen && !a.isCorrect),
+                                'answer_joker': a.isJoker              
+                            }"
+                            v-html="a.text"></li>
                     </ul>
                 </div>
-                <div class="col-sm-2" id="result">
+                <div class="col-sm-4" id="result">
                     <i class="fas fa-check-circle" style="font-size:48px;color:green;" v-if="showCheck"></i>
                     <i class="fas fa-times-circle" style="font-size:48px;color:red;" v-if="showTimes"></i>
-                    <br>
-                    <div>{{resultMessage}}</div>
+                    
+                    <div><span v-html="resultMessage"></span></div>
                 </div>
                 <div class="col-sm-2" id="result">
                 </div>
@@ -99,17 +109,16 @@
             <div class="row game" id="buttons">
                 <div class="col-sm-12">
                     <hr>
-                    <button class="primary" :disabled="isDisabledJoker">Joker</button>
+                    <button class="primary" :disabled="isDisabledJoker" v-on:click="jokerClicked">Joker</button>
                     <button class="primary" disabled>Give Up</button>
-                    <button class="primary" :disabled="isDisabledNext"  v-on:click="nextQuestionClicked">Next</button>
+                    <button class="primary" :disabled="isDisabledNext" v-on:click="nextQuestionClicked">Next</button>
                 </div>
 
             </div>
 
-
-            <!--<footer>
+            <footer>
                 <p>willie 2020.10</p>
-            </footer>-->
+            </footer>
         </div>
         <!--container-->
 
