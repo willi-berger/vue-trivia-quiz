@@ -2,6 +2,53 @@
  * open trivia game 
  */
 
+
+Vue.component('category-accordion-item', {
+    props: ['group'], 
+    template:`
+   <div><slot></slot><div>
+`
+})
+
+
+Vue.component('category-accordion', {
+     props: {
+        groups: {required: true},
+        title: {required: true},
+    }, 
+    template:`
+<div class="collapse">
+   <category-accordion-item
+        v-for="item in groups" 
+        v-bind:group="item" 
+        v-bind:key="item.name">
+
+        <input type="radio" id="accordion-section1" checked aria-hidden="true" name="accordion">
+        <label for="accordion-section1" aria-hidden="true">
+group.name
+        </label>
+        <div>
+            <p>This is the first section of the accordion</p>
+        </div>
+
+    </category-accordion-item>
+</div>`
+})
+
+
+Vue.component('category-group', {
+    props: ['group'],
+    template:`
+<div class="collapse">
+    <input type="radio" id="accordion-section1" checked aria-hidden="true" name="accordion">
+    <label for="accordion-section1" aria-hidden="true">{{group.name}}</label>
+    <div>
+     <p>This is the first section of the accordion</p>
+   </div>
+</div>
+`
+})
+
 var app = new Vue({
     el: "#app",
 
@@ -13,6 +60,7 @@ var app = new Vue({
         categoryId: 0,
         level: "",
         categories: [],
+        categoryGroups: [],
         difficulty: "easy",
         difficulties: [
             {id:"easy", name:"Easy"},
@@ -37,9 +85,13 @@ var app = new Vue({
         // initialize game
         console.log("vue created ...")
         setTimeout(() => {
-            this.fetchCategories();
+            this.fetchCategories(true);
         }, 900);
     
+    },
+    
+    mounted: function() {
+        console.log("vue mounted ...")
     },
     
     computed: {
@@ -75,6 +127,8 @@ var app = new Vue({
                 this.categories = data['trivia_categories'];
                 this.categoryId =  this.categories[0].id;
                 
+                this.groupCategories();
+                
                 // also fetch the initial questions
                 this.fetchQuestions();
                 this.showLoader = false;
@@ -85,6 +139,51 @@ var app = new Vue({
                 this.errorMessage = "Cannot fetch categories: " + error;
                 this.showLoader = false;
             });            
+            
+        },
+        
+        /**
+         * group categories
+         */
+        groupCategories: function() {
+            
+            groupsMap = new Map();
+            let groupId = 0
+            this.categories.forEach(cat => {
+                let words = cat.name.split(':');
+                console.log(words)
+                if (words.length > 1 ) {
+                    group = words[0];
+                    name = words[1];
+                } else {
+                    group = 'General';
+                    name = words[0];
+                }
+                console.log('group: ' + group + ' name ' + name);
+                if (!groupsMap.has(group)) {
+                    groupsMap.set(group, {
+                            "name" : group,
+                            "id": groupId,
+                            "selected": groupId == 0,
+                            "categories": []
+                        })
+                }
+                groupId++
+                groupsMap.get(group).categories.push({
+                    "id": cat.id, 
+                    "name": name,
+                    "slected": false
+                });
+               
+            })
+            
+            groupsMap.forEach(item => {
+                this.categoryGroups.push(item)                
+            })
+            
+            /*for (let i = 1; i < 3; i++) {
+                $('.grp-parent-' + i).hide();
+            }*/
             
         },
         
@@ -124,6 +223,9 @@ var app = new Vue({
             });
         },
         
+        /**
+         * show current question and answers
+         */
         showCurrentQuestionAndAnswers: function () {
             let q = this.questions[this.currentQuestion];
             this.category = q['category'];
@@ -153,11 +255,12 @@ var app = new Vue({
         /**
          * check given answer
          */
-        checkAnswer: function (event) {
-            console.log(event.target.textContent)
+        checkAnswer: function (answer) {
+            console.log("check answer " + answer)
             if (!this.answerGiven) {
                 let correctAnswer = this.questions[this.currentQuestion]['correct_answer'];
-                let givenAnswer = event.target.textContent;
+                let givenAnswer = answer.text;
+                // FIXME: givenAnswer from list item was htML encoded and check may fail 
                 if (givenAnswer == correctAnswer) {
                     this.showCheck = true;
                     this.resultMessage = `Yes, <i>'${correctAnswer}'</i> is the correct answer`;
@@ -215,7 +318,22 @@ var app = new Vue({
         isHighlighted: function (i) {
             console.log('id highlighted ' + i);
             return true;
-        }
+        },
         
-    }
+        /**
+         * a category group has been selected
+         */
+        selectedGroup: function (selectedGroup) {
+            console.info(`selected group: ${selectedGroup.name}`)
+            this.categoryGroups.forEach(group => {
+                group.selected = (group.id === selectedGroup.id) ? true : false
+            })
+        },
+
+        categorySelected: function (selectedCategory) {
+            console.info(`selected category: ${selectedCategory.name}`)
+            this.categoryId = selectedCategory.id;
+        },
+    },
+
 });

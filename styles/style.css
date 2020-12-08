@@ -27,24 +27,44 @@ body {
 }
 
 
-#categories li {
+#categories li:hover {
     background-color: aquamarine;
-    float: left;
-    margin: 10px;
+    opacity: 1;
+    cursor: pointer;
+}
+
+
+.category-group {
+    list-style-type: none;
+    background-color: #00e699;
+    padding: 5px 10px;
+}
+.category-group:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.category-item {
+    list-style-type: none;
+    background-color: #7fffd4;
     padding: 5px 10px;
     opacity: 0.5;
     transition-duration: 0.2s
 }
 
-.highlight {
-    border: 3px solid red;
+.selected {
+    background-color: #00cc88;
 }
 
+.category-item:active, #answers li:active {
+    background-color: bisque;
+}
 
-#categories li:hover {
-    background-color: aquamarine;
+.category-item:hover{
     opacity: 1;
+    cursor: pointer;
 }
+
 
 
 #answers li {
@@ -59,6 +79,7 @@ body {
 
 .answer_able:hover {
     opacity: 1;
+    cursor: pointer;
 }
 
 .answer_wrong {

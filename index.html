@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="node_modules/mini.css/dist/mini-nord.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 
 <body>
@@ -22,11 +22,13 @@
                 <div class="col-sm-2">
                     <img src="img/logo.png" />
                 </div>
+                <div class="col-sm-1"></div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-9">
                     <h1>{{message}}</h1>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse quis massa ut metus hendrerit fermentum. Nulla ut dapibus nisi. Nulla vel placerat nisl. Vestibulum tincidunt mattis ante id facilisis. In hac habitasse platea dictumst. Etiam gravida, ante at dignissim convallis, neque massa auctor nunc, non rhoncus orci dolor sollicitudin nisl.
+                        A quiz game with questions from the <i>"Open Trivia"</i> database. <br>
+                        Select a category and difficulty and start a quiz. Have fun :)
                     </p>
 
                 </div>
@@ -38,22 +40,86 @@
                 </div>
             </div>
 
-            <div id="categories" class="row game">
+            <!--<div id="categories" class="row game">
                 <div class="col-sm-12">
                     <ul v-for="cat in categories">
                         <li v-bind:class="{highlight: cat.id % 2 == 0}">{{cat.name}}</li>
                     </ul>
                 </div>
+            </div>-->
+
+            <div class="row game">
+                
+                <!-- Category Selection -->
+                <div class="col-sm-3">
+                    <ul id="categories-list">
+                        <li class="category-group" 
+                            v-for="group in categoryGroups"
+                            v-on:click="selectedGroup(group)"
+                            >{{group.name}}
+                            <ul>
+                            <li v-for="cat in group.categories"
+                                v-bind:class="{
+                                    'hidden': !group.selected,
+                                    'selected': (cat.id == categoryId)
+                                    }"
+                                v-bind:hello="'grp-parent-' + group.id" 
+                                class="category-item" 
+                                id="category-item" 
+                                v-on:click="categorySelected(cat)"    
+                                >{{cat.name}}</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- question and answers and buttons -->
+                <div id="answers" class="col-sm-6">
+                    <div class="question"   id="question">
+                        <h2><i class="fas fa-question"></i>&nbsp;{{category}}&nbsp;<i class="fas fa-question"></i></h2>
+                        <h3><span v-html="question"></span></h3>
+                    </div>    
+                    <hr>
+                    <ul v-for="a in answers">
+                        <li v-bind:class="{
+                                'answer_able': !answerGiven && !a.isJoker,
+                                'answer_given': ((answerGiven && !a.isChosen) || a.isJoker),
+                                'answer_correct': (answerGiven && a.isChosen && a.isCorrect),
+                                'answer_wrong': (answerGiven && a.isChosen && !a.isCorrect),
+                                'answer_joker': a.isJoker              
+                            }"
+                            v-on:click="checkAnswer(a)" 
+                            v-html="a.text"></li>
+                    </ul>
+                    <hr>
+                    <div id="buttons">
+                        <button class="primary" :disabled="isDisabledJoker" v-on:click="jokerClicked">Joker</button>
+                        <button class="primary" disabled>Give Up</button>
+                        <button class="primary" :disabled="isDisabledNext" v-on:click="nextQuestionClicked">Next</button>
+                    </div>
+                </div>
+
+                <!-- result -->
+                <div class="col-sm-3" id="result">
+                    <div id="resultbox">
+                        <i class="fas fa-check-circle" style="font-size:48px;color:green;" v-if="showCheck"></i>
+                        <i class="fas fa-times-circle" style="font-size:48px;color:red;" v-if="showTimes"></i>
+                        <div><span v-html="resultMessage"></span></div>
+                    </div>
+                </div>
             </div>
-            
+
+
+
             <div class="row game">
                 <div class="col-sm-12">
                     <form>
                         <fieldset>
-                            <label for="category">Category</label>
+<!--                             <label for="category">Category</label>
                             <select name="category" id="category" v-model="categoryId">
                                 <option v-for="cat in categories" v-bind:value="cat.id">{{cat.name}}</option>
                             </select>
+ -->                            
                             <label for="difficulty">Difficulty</label>
                             <select name="difficulty" v-model="difficulty">
                                 <option v-for="d in difficulties" v-bind:value="d.id">{{d.name}}</option>
@@ -69,55 +135,8 @@
 
                 </div>
             </div>
-
-            <div class="row game" id="question">
-                <div class="col-sm question">
-                    <hr>
-                    <h2><i class="fas fa-question"></i>&nbsp;{{category}}&nbsp;<i class="fas fa-question"></i></h2>
-                    <h3><span v-html="question"></span></h3>
-                </div>
-            </div>
-
-            <div id="answers" class="row game">
-                <div class="col-sm-4">
-                </div>
-
-                <div class="col-sm-4">
-                    <hr>
-                    <ul v-for="a in answers" v-on:click="checkAnswer">
-                        <li  
-                            v-bind:class="{
-                                'answer_able': !answerGiven && !a.isJoker,
-                                'answer_given': ((answerGiven && !a.isChosen) || a.isJoker),
-                                'answer_correct': (answerGiven && a.isChosen && a.isCorrect),
-                                'answer_wrong': (answerGiven && a.isChosen && !a.isCorrect),
-                                'answer_joker': a.isJoker              
-                            }"
-                            v-html="a.text"></li>
-                    </ul>
-                </div>
-                <div class="col-sm-4" id="result">
-                    <i class="fas fa-check-circle" style="font-size:48px;color:green;" v-if="showCheck"></i>
-                    <i class="fas fa-times-circle" style="font-size:48px;color:red;" v-if="showTimes"></i>
-                    
-                    <div><span v-html="resultMessage"></span></div>
-                </div>
-                <div class="col-sm-2" id="result">
-                </div>
-            </div>
-
-            <div class="row game" id="buttons">
-                <div class="col-sm-12">
-                    <hr>
-                    <button class="primary" :disabled="isDisabledJoker" v-on:click="jokerClicked">Joker</button>
-                    <button class="primary" disabled>Give Up</button>
-                    <button class="primary" :disabled="isDisabledNext" v-on:click="nextQuestionClicked">Next</button>
-                </div>
-
-            </div>
-
             <footer>
-                <p>willie 2020.10</p>
+                <p>willie 2020.12: powered by <a href="https://opentdb.com/">opentdb.com</a></p>
             </footer>
         </div>
         <!--container-->
@@ -132,6 +151,7 @@
 </body>
 
 <script src="node_modules/vue/dist/vue.js"></script>
-<script src="app.js"></script>
+<script src="node_modules/jquery/dist/jquery.js"></script>
+<script src="js/app.js"></script>
 
 </html>
